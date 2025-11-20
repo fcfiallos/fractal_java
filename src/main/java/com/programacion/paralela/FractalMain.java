@@ -23,7 +23,7 @@ public class FractalMain {
 
     FractalMain() {
         // Lo ideal es definir el 1600*900 como constante
-        intBuffer = BufferUtils.createIntBuffer(1600*900);
+        intBuffer = BufferUtils.createIntBuffer(1600 * 900);
         cpu = new FractalCpu();
     }
 
@@ -43,7 +43,7 @@ public class FractalMain {
     private void init() {
         GLFWErrorCallback.createPrint(System.err).set();
 
-        if ( !glfwInit() )
+        if (!glfwInit())
             throw new IllegalStateException("Unable to initialize GLFW");
         // configuración de GLFW
         glfwDefaultWindowHints();
@@ -51,34 +51,35 @@ public class FractalMain {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         //Crea la ventana por eso se define el tamaño
         window = glfwCreateWindow(1600, 900, "Hello World!", NULL, NULL);
-        if ( window == NULL )
+        if (window == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
 
         // aqui epecificaremos el subir/bajar iteraciones
         glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
-            if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
+            if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
                 glfwSetWindowShouldClose(window, true);
 
-            if (key == GLFW_KEY_UP && action == GLFW_RELEASE ){
-                FractalParams.max_iterations+=10;
+            if (key == GLFW_KEY_UP && action == GLFW_RELEASE) {
+                FractalParams.max_iterations += 10;
             }
-            if (key == GLFW_KEY_DOWN && action == GLFW_RELEASE ){
-                FractalParams.max_iterations-=10;
-                if (FractalParams.max_iterations<0) FractalParams.max_iterations=10;
+            if (key == GLFW_KEY_DOWN && action == GLFW_RELEASE) {
+                FractalParams.max_iterations -= 10;
+                if (FractalParams.max_iterations < 0) FractalParams.max_iterations = 10;
             }
+            cpu.julia_serial_2();
         });
         //Centra la ventana
         GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        glfwSetWindowPos(window,(vidmode.width()-1600)/2,(vidmode.height()-900)/2);
+        glfwSetWindowPos(window, (vidmode.width() - 1600) / 2, (vidmode.height() - 900) / 2);
 
         glfwMakeContextCurrent(window);
 
         GL.createCapabilities();
-        GL.createCapabilitiesWGL();
+        // GL.createCapabilitiesWGL(); // existe problema con
 
-        String version=GL11.glGetString(GL11.GL_VERSION);
-        String vendor =GL11.glGetString(GL11.GL_VENDOR);
-        String renderer =GL11.glGetString(GL11.GL_RENDERER);
+        String version = GL11.glGetString(GL11.GL_VERSION);
+        String vendor = GL11.glGetString(GL11.GL_VENDOR);
+        String renderer = GL11.glGetString(GL11.GL_RENDERER);
 
         System.out.println("OpenGL version: " + version);
         System.out.println("OpenGL vendor: " + vendor);
@@ -100,21 +101,19 @@ public class FractalMain {
         setUpTexture();
     }
 
-    void setUpTexture(){
+    void setUpTexture() {
         textureID = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, textureID);
         // en el codigo c++ se dejo creando para RGBA con 8 pixeles
-        glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,1600,900,0,GL_RGBA,GL_UNSIGNED_BYTE,NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1600, 900, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     }
 
     private void loop() {
-        GL.createCapabilities();
-
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-        while ( !glfwWindowShouldClose(window) ) {
+        while (!glfwWindowShouldClose(window)) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // liempia color y profundidad
             paint();
 
@@ -128,30 +127,32 @@ public class FractalMain {
         // dibujar
 
         cpu.julia_serial_2();
+        intBuffer.clear(); // ejecutar antes de usar put en mi lap
         intBuffer.put(cpu.pixel_buffer);
+        intBuffer.flip(); // preparar para la lectura en OpenGL igual en mi lap
 
         glEnable(GL_TEXTURE_2D);
 
         glBindTexture(GL_TEXTURE_2D, textureID);
         glTexImage2D(
                 GL_TEXTURE_2D, 0, GL_RGBA8,
-                1600,900,0,
-                GL_RGBA,GL_UNSIGNED_BYTE,
+                1600, 900, 0,
+                GL_RGBA, GL_UNSIGNED_BYTE,
                 intBuffer
         );
 
         glBegin(GL_QUADS);
         {
-            glTexCoord2f(0,0);
+            glTexCoord2f(0, 0);
             glVertex2f(-1, -1);
 
-            glTexCoord2f(0,1);
+            glTexCoord2f(0, 1);
             glVertex2f(-1, 1);
 
-            glTexCoord2f(1,1);
+            glTexCoord2f(1, 1);
             glVertex2f(1, 1);
 
-            glTexCoord2f(1,0);
+            glTexCoord2f(1, 0);
             glVertex2f(1, -1);
         }
         glEnd();

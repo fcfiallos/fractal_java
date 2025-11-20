@@ -7,6 +7,7 @@ public class FractalCpu {
 
     public FractalCpu(){
         pixel_buffer = new int[FractalParams.WIDTH * FractalParams.HEIGHT];
+        julia_serial_2();
     }
 
     int divergente_2(double x, double y) {

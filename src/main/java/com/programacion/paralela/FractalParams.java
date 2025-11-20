@@ -14,13 +14,12 @@ public class FractalParams {
 
     public static double c_real = -0.7;
     public static double c_imag = 0.27815;
-    /*uint32_t _bswap32(uint32_t a)
-    {
+    public static int bswap32(int a) {
         return ((a & 0x000000FF) << 24) |
-                ((a & 0x0000FF00) << 8) |
-                ((a & 0x00FF0000) >> 8) |
-                ((a & 0xFF000000) >> 24);
-    }*/
+                ((a & 0x0000FF00) << 8)  |
+                ((a & 0x00FF0000) >>> 8) |
+                ((a & 0xFF000000) >>> 24);
+    }
     public static  final int[]  color_ramp={
       (0xF3FF0FFF),
             (0xEDEF18FF),
