@@ -26,7 +26,7 @@ public class FractalCpu {
 
         if (iter < FractalParams.max_iterations) {
             int index = iter % FractalParams.PALETTE_SIZE;
-            return FractalParams.color_ramp[index];
+            return FractalParams.COLOR_RAMP[index];
         }
 
         return 0xFF000000; // color negro

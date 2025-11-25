@@ -18,13 +18,17 @@ public class FractalMain {
     private int textureID;
 
     private IntBuffer intBuffer;
-
-    FractalCpu cpu;
+    int modo = 1;
+    private FractalCpu cpu;
+    private FractalSimd simd;
+    private FPSCounter fpsCounter ;
 
     FractalMain() {
         // Lo ideal es definir el 1600*900 como constante
         intBuffer = BufferUtils.createIntBuffer(1600 * 900);
         cpu = new FractalCpu();
+        simd = new FractalSimd();
+        fpsCounter = new FPSCounter();
     }
 
     public void run() {
@@ -66,7 +70,15 @@ public class FractalMain {
                 FractalParams.max_iterations -= 10;
                 if (FractalParams.max_iterations < 0) FractalParams.max_iterations = 10;
             }
-            cpu.julia_serial_2();
+            if (key == GLFW_KEY_1 && action == GLFW_RELEASE) {
+                System.out.println("Modo CPU");
+                modo = 1;
+            }
+            if (key == GLFW_KEY_2 && action == GLFW_RELEASE) {
+                System.out.println("Modo SIMD");
+                modo = 2;
+            }
+            //cpu.julia_serial_2();
         });
         //Centra la ventana
         GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
@@ -75,7 +87,7 @@ public class FractalMain {
         glfwMakeContextCurrent(window);
 
         GL.createCapabilities();
-        // GL.createCapabilitiesWGL(); // existe problema con
+        GL.createCapabilitiesWGL(); // existe problema con
 
         String version = GL11.glGetString(GL11.GL_VERSION);
         String vendor = GL11.glGetString(GL11.GL_VENDOR);
@@ -124,13 +136,21 @@ public class FractalMain {
     }
 
     void paint() {
+        fpsCounter.update();
         // dibujar
+        {
+            intBuffer.clear(); // ejecutar antes de usar put en mi lap
 
-        cpu.julia_serial_2();
-        intBuffer.clear(); // ejecutar antes de usar put en mi lap
-        intBuffer.put(cpu.pixel_buffer);
-        intBuffer.flip(); // preparar para la lectura en OpenGL igual en mi lap
+            if (modo == 1) {
+                cpu.julia_serial_2();
+                intBuffer.put(cpu.pixel_buffer);
+            } else if (modo == 2) {
+                simd.julia_simd();
+                intBuffer.put(simd.pixel_buffer.asIntBuffer());
+            }
 
+            intBuffer.flip(); // preparar para la lectura en OpenGL igual en mi lap
+        }
         glEnable(GL_TEXTURE_2D);
 
         glBindTexture(GL_TEXTURE_2D, textureID);
@@ -159,6 +179,7 @@ public class FractalMain {
     }
 
     public static void main(String[] args) {
+        System.setProperty("java.library.path", System.getProperty("user.dir") + "\\src\\main\\resources\\win32-x86-64");
         new FractalMain().run();
     }
 

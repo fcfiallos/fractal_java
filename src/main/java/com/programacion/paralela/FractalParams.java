@@ -20,22 +20,23 @@ public class FractalParams {
                 ((a & 0x00FF0000) >>> 8) |
                 ((a & 0xFF000000) >>> 24);
     }
-    public static  final int[]  color_ramp={
-      (0xF3FF0FFF),
-            (0xEDEF18FF),
-            (0xE8E022FF),
-            (0xE3D02BFF),
-            (0xDDC135FF),
-            (0xD8B23FFF),
-           (0xD3A248FF),
-           (0xCD9352FF),
-           (0xC8835BFF),
-            (0xC37465FF),
-            (0xBD656FFF),
-           (0xB85578FF),
-          (0xB34682FF),
-            (0xAD368BFF),
-           (0xA82795FF),
-         (0xA3189FFF)};
+    public static final int[] COLOR_RAMP = {
+            bswap32(0x0FFF8BFF),
+            bswap32(0x0FF38CFF),
+            bswap32(0x10E88DFF),
+            bswap32(0x10DC8EFF),
+            bswap32(0x11D190FF),
+            bswap32(0x11C591FF),
+            bswap32(0x12BA92FF),
+            bswap32(0x12AE93FF),
+            bswap32(0x13A395FF),
+            bswap32(0x139796FF),
+            bswap32(0x148C97FF),
+            bswap32(0x148098FF),
+            bswap32(0x15759AFF),
+            bswap32(0x15699BFF),
+            bswap32(0x165E9CFF),
+            bswap32(0x16529DFF)
+    };
 
 }
